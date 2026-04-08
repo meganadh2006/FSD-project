@@ -27,7 +27,7 @@ public class UserService {
 
     public AuthResponse registerUser(RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already in use");
+            throw new IllegalArgumentException("Email already in use");
         }
 
         User user = new User();
@@ -76,6 +76,27 @@ public class UserService {
     public User getUserByEmail(@NonNull String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+    }
+
+    public UserDTO updateUser(Long id, UpdateUserRequest request) {
+        User user = getUserById(id);
+        userRepository.findByEmail(request.getEmail())
+                .filter(existingUser -> !existingUser.getId().equals(id))
+                .ifPresent(existingUser -> {
+                    throw new IllegalArgumentException("Email already in use");
+                });
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        user.setRole(request.getRole());
+        return toDTO(userRepository.save(user));
+    }
+
+    public void deleteUser(Long id) {
+        User user = getUserById(id);
+        userRepository.delete(user);
     }
 
     private UserDTO toDTO(User user) {

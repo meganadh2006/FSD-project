@@ -47,6 +47,13 @@ public class DonationController {
         return ResponseEntity.ok(donationService.updateDonationStatus(id, status));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Donation> updateDonation(
+            @PathVariable Long id, 
+            @Valid @RequestBody Donation donation) {
+        return ResponseEntity.ok(donationService.updateDonation(id, donation));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDonation(@PathVariable Long id) {
         donationService.deleteDonation(id);

@@ -47,6 +47,13 @@ public class AssistanceRequestController {
         return ResponseEntity.ok(requestService.updateRequestStatus(id, status));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<AssistanceRequest> updateRequest(
+            @PathVariable Long id, 
+            @Valid @RequestBody AssistanceRequest request) {
+        return ResponseEntity.ok(requestService.updateRequest(id, request));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRequest(@PathVariable Long id) {
         requestService.deleteRequest(id);

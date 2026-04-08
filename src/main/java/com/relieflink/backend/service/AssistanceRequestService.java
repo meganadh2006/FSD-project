@@ -7,6 +7,9 @@ import com.relieflink.backend.repository.AssistanceRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.lang.NonNull;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.relieflink.backend.model.User;
 
 import java.util.List;
 
@@ -20,6 +23,15 @@ public class AssistanceRequestService {
         if (request.getStatus() == null) {
             request.setStatus(RequestStatus.PENDING);
         }
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            User currentUser = (User) authentication.getPrincipal();
+            if (request.getRecipient() == null) {
+                request.setRecipient(currentUser);
+            }
+        }
+        
         return requestRepository.save(request);
     }
 
@@ -39,6 +51,15 @@ public class AssistanceRequestService {
     public AssistanceRequest updateRequestStatus(Long id, RequestStatus status) {
         AssistanceRequest request = getRequestById(id);
         request.setStatus(status);
+        return requestRepository.save(request);
+    }
+
+    public AssistanceRequest updateRequest(Long id, AssistanceRequest requestDetails) {
+        AssistanceRequest request = getRequestById(id);
+        request.setItem(requestDetails.getItem());
+        request.setQuantityDescription(requestDetails.getQuantityDescription());
+        request.setStatus(requestDetails.getStatus());
+        request.setEta(requestDetails.getEta());
         return requestRepository.save(request);
     }
 
